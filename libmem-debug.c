@@ -4,8 +4,6 @@
 #include "types.h"
 #include "hand_err.h"
 
-#define _GNU_SOURCE
-
 #define PADDING_RATIO 1
 #define PADDING_INCRE 0
 #define PADDING_FILLC (int8_t)0
@@ -14,7 +12,9 @@ int fprint_mem_debug_malloc(FILE *stream, data_malloc *data);
 int fprint_mem_debug_free(FILE *stream, data_free *data);
 int fprint_mem_debug_calloc(FILE *stream, data_calloc *data);
 int fprint_mem_debug_realloc(FILE *stream, data_realloc *data);
+#if __GLIBC_MINOR__ > 28
 int fprint_mem_debug_reallocarray(FILE *stream, data_reallocarray *data);
+#endif
 
 
 void *alloc_stack;
@@ -122,6 +122,7 @@ void *realloc_mem_debug(void *sptr, size_t size, int line, char *file,
 	return ptr;
 }
 
+#if __GLIBC_MINOR__ > 28
 void *reallocarray_mem_debug(void *sptr, size_t nmemb, size_t size, int line,
 			     char *file, char *func)
 {
@@ -151,6 +152,7 @@ void *reallocarray_mem_debug(void *sptr, size_t nmemb, size_t size, int line,
 	push(alloc_stack, data);
 	return ptr;
 }
+#endif
 
 int fprint_mem_debug_malloc(FILE *stream, data_malloc *data)
 {
@@ -231,6 +233,7 @@ int fprint_mem_debug_realloc(FILE *stream, data_realloc *data)
                        data->debug.func, data->debug.ptr, data->sptr);
 }
 
+#if __GLIBC_MINOR__ > 28
 int fprint_mem_debug_reallocarray(FILE *stream, data_reallocarray *data)
 {
         return fprintf(stream,
@@ -247,6 +250,7 @@ int fprint_mem_debug_reallocarray(FILE *stream, data_reallocarray *data)
                        data->nmemb, data->padding, data->size, data->debug.line, data->debug.file,
                        data->debug.func, data->debug.ptr, data->sptr);
 }
+#endif
 
 int fprint_mem_debug(FILE *stream)
 {
@@ -266,9 +270,11 @@ int fprint_mem_debug(FILE *stream)
                 case TYPE_REALLOC:
                         return fprint_mem_debug_realloc(stream, (data_realloc *)data);
                         break;
+#if __GLIBC_MINOR__ > 28
                 case TYPE_REALLOCARRAY:
                         return fprint_mem_debug_reallocarray(stream, (data_reallocarray *)data);
                         break;
+#endif
                 }
         }
 
@@ -276,7 +282,9 @@ int fprint_mem_debug(FILE *stream)
                 switch (data->type) {
                 case TYPE_CALLOC:
                 case TYPE_REALLOC:
+#if __GLIBC_MINOR__ > 28
                 case TYPE_REALLOCARRAY:
+#endif
                 case TYPE_MALLOC:
                         return 0;
                         break;
