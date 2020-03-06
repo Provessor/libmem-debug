@@ -229,7 +229,7 @@ int fprint_mem_debug_realloc(FILE *stream, data_realloc *data)
                        "\t\nPTR: %p"
                        "\n\n",
                        data->size, data->padding, data->debug.line, data->debug.file,
-                       data->debug.func, data->debug.ptr, data->sptr);
+                       data->debug.func, data->debug.ptr);
 }
 
 #if __GLIBC_MINOR__ > 28
@@ -246,7 +246,7 @@ int fprint_mem_debug_reallocarray(FILE *stream, data_reallocarray *data)
                        "\t\nPTR: %p"
                        "\n\n",
                        data->nmemb, data->padding, data->size, data->debug.line, data->debug.file,
-                       data->debug.func, data->debug.ptr, data->sptr);
+                       data->debug.func, data->debug.ptr);
 }
 #endif
 
