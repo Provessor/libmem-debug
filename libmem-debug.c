@@ -30,7 +30,7 @@ void *malloc_mem_debug(size_t size, int line, char *file, char *func)
 	void *ptr = malloc(size + padding);
 
 	for (int8_t *pin = (int8_t *)ptr + size;
-	     pin <= (int8_t *)ptr + size + padding; pin++)
+	     pin < (int8_t *)ptr + size + padding; pin++)
 		*pin = PADDING_FILLC;
 
 	data->debug.type = TYPE_MALLOC;
@@ -76,7 +76,7 @@ void *calloc_mem_debug(size_t nmemb, size_t size, int line, char *file,
 	void *ptr = calloc(nmemb + padding, size);
 
 	for (int8_t *pin = (int8_t *)ptr + (nmemb * size);
-	     pin <= (int8_t *)ptr + ((nmemb + padding) * size); pin++)
+	     pin < (int8_t *)ptr + ((nmemb + padding) * size); pin++)
 		*pin = PADDING_FILLC;
 
 	data->debug.type = TYPE_CALLOC;
@@ -104,7 +104,7 @@ void *realloc_mem_debug(void *sptr, size_t size, int line, char *file,
 	void *ptr = realloc(sptr, size + padding);
 
 	for (int8_t *pin = (int8_t *)ptr + size;
-	     pin <= (int8_t *)ptr + size + padding; pin++)
+	     pin < (int8_t *)ptr + size + padding; pin++)
 		*pin = PADDING_FILLC;
 
 	data->debug.type = TYPE_REALLOC;
@@ -115,7 +115,6 @@ void *realloc_mem_debug(void *sptr, size_t size, int line, char *file,
 
 	data->size = size;
 	data->padding = padding;
-	data->sptr = sptr;
 
         (void)get(alloc_stack, sptr);
 	push(alloc_stack, data);
@@ -135,7 +134,7 @@ void *reallocarray_mem_debug(void *sptr, size_t nmemb, size_t size, int line,
 	void *ptr = reallocarray(sptr, nmemb + padding, size);
 
 	for (int8_t *pin = (int8_t *)ptr + (nmemb * size);
-	     pin <= (int8_t *)ptr + ((nmemb + padding) * size); pin++)
+	     pin < (int8_t *)ptr + ((nmemb + padding) * size); pin++)
 		*pin = PADDING_FILLC;
 
 	data->debug.type = TYPE_REALLOCARRAY;
@@ -146,7 +145,6 @@ void *reallocarray_mem_debug(void *sptr, size_t nmemb, size_t size, int line,
 
 	data->size = size;
 	data->padding = padding;
-	data->sptr = sptr;
 
         (void)get(alloc_stack, sptr);
 	push(alloc_stack, data);
@@ -229,7 +227,6 @@ int fprint_mem_debug_realloc(FILE *stream, data_realloc *data)
                        "\t\nFILE: %s"
                        "\t\nFUNCTION: %s"
                        "\t\nPTR: %p"
-                       "\t\nSPTR: %p"
                        "\n\n",
                        data->size, data->padding, data->debug.line, data->debug.file,
                        data->debug.func, data->debug.ptr, data->sptr);
@@ -247,7 +244,6 @@ int fprint_mem_debug_reallocarray(FILE *stream, data_reallocarray *data)
                        "\t\nFILE: %s"
                        "\t\nFUNCTION: %s"
                        "\t\nPTR: %p"
-                       "\t\nSPTR: %p"
                        "\n\n",
                        data->nmemb, data->padding, data->size, data->debug.line, data->debug.file,
                        data->debug.func, data->debug.ptr, data->sptr);

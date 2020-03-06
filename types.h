@@ -42,7 +42,6 @@ typedef struct {
 	data_debug debug;
 	size_t size;
         size_t padding;
-        void *sptr;
 } data_realloc;
 
 typedef struct {
@@ -50,7 +49,6 @@ typedef struct {
 	size_t nmemb;
 	size_t size;
         size_t padding;
-        void *sptr;
 } data_reallocarray;
 
 #endif
