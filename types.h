@@ -27,10 +27,8 @@ typedef struct {
 } data_malloc;
 
 typedef struct {
-	data_debug *debug;
-        int free_line;
-        char *free_file;
-        char *free_func;
+	data_debug debug;
+        data_debug *orig;
 } data_free;
 
 typedef struct {

@@ -3,6 +3,7 @@
 #define LIBMEMDEBUG_H
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #define malloc(size) malloc_mem_debug(size, __LINE__, __FILE__, __func__)
 #define free(ptr) free_mem_debug(ptr, __LINE__, __FILE__, __func__)
@@ -15,5 +16,9 @@ void free_mem_debug(void *ptr, int line, char *file, char *func);
 void *calloc_mem_debug(size_t nmemb, size_t size, int line, char *file, char *func);
 void *realloc_mem_debug(void *ptr, size_t size, int line, char *file, char *func);
 void *reallocarray_mem_debug(void *ptr, size_t nmemb, size_t size, int line, char *file, char *func);
+
+int print_mem_debug(void);
+int fprint_mem_debug(FILE *stream);
+int log_mem_debug(char *fn);
 
 #endif

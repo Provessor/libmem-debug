@@ -3,24 +3,18 @@
 
 #include "stack.h"
 #include "types.h" // FIXME: would like to not include
+#include "hand_err.h"
 
 typedef struct stack {
 	data_debug *ptr;
 	struct stack *next;
 } Stack;
 
-void internal_mem_error(const char *file, const int line, const char *err)
-{
-	fprintf(stderr, "%s: internal memory error at %d - %s", file, line,
-		err);
-	exit(1);
-}
-
 void push(void *stack, void *ptr)
 {
         Stack *new = (Stack *)malloc(sizeof(Stack));
         if (new == NULL)
-                internal_mem_error(__FILE__, __LINE__, "Failed to allocate memory");
+                internal_mem_error_size(__LINE__, __FILE__, __func__, sizeof(Stack));
         
         new->ptr = ptr;
 
@@ -28,7 +22,7 @@ void push(void *stack, void *ptr)
         stack = new;
 }
 
-void *pop(void *stack, void *mptr)
+void *get(void *stack, void *mptr)
 {
         Stack *prev = NULL, *pin = (Stack *)stack;
         
@@ -44,5 +38,17 @@ void *pop(void *stack, void *mptr)
                 }
         }
 
-        return (void *)pin;
+        void *ptr = pin->ptr;
+        free(pin);
+        return ptr;
+}
+
+void *pop(void *stack)
+{
+        Stack *head = (Stack *)stack;
+        stack = head->next;
+
+        void *ptr = head->ptr;
+        free(head);
+        return ptr;
 }
