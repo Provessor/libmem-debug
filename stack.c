@@ -32,15 +32,17 @@ void *get(void *stack, void *mptr)
                                 prev->next = pin->next;
                         else
                                 stack = pin->next;
-                } else {
-                        prev = pin;
-                        pin = pin->next;
+
+                        void *ptr = pin->ptr;
+                        free(pin);
+                        return ptr;
                 }
+                
+                prev = pin;
+                pin = pin->next;
         }
 
-        void *ptr = pin->ptr;
-        free(pin);
-        return ptr;
+        return NULL;
 }
 
 void *pop(void *stack)

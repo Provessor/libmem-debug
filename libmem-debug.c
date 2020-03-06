@@ -116,7 +116,8 @@ void *realloc_mem_debug(void *sptr, size_t size, int line, char *file,
 	data->size = size;
 	data->padding = padding;
 
-        (void)get(alloc_stack, sptr);
+        if (get(alloc_stack, sptr) == NULL)
+                internal_mem_error(__LINE__, __FILE__, __func__, "Tried to remove a element from stack which was not on stack");
 	push(alloc_stack, data);
 	return ptr;
 }
