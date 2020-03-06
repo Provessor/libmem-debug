@@ -10,7 +10,7 @@ typedef struct stack {
 	struct stack *next;
 } Stack;
 
-void push(void *stack, void *ptr)
+void push(void **stack, void *ptr)
 {
         Stack *new = (Stack *)malloc(sizeof(Stack));
         if (new == NULL)
@@ -19,22 +19,22 @@ void push(void *stack, void *ptr)
         new->ptr = ptr;
 
         new->next = (Stack *)stack;
-        stack = new;
+        *stack = new;
 }
 
-void *get(void *stack, void *mptr)
+void *get(void **stack, void *mptr)
 {
-        Stack *prev = NULL, *pin = (Stack *)stack;
+        Stack *prev = NULL, *pin = (Stack *)*stack;
         
         while (pin != NULL) {
                 if (pin->ptr->ptr == mptr) { // FEXME: all types.h is for
                         if (prev != NULL)
                                 prev->next = pin->next;
                         else
-                                stack = pin->next;
+                                *stack = pin->next;
 
                         void *ptr = pin->ptr;
-                        free(pin);
+                        //free(pin);
                         return ptr;
                 }
                 
@@ -45,12 +45,10 @@ void *get(void *stack, void *mptr)
         return NULL;
 }
 
-void *pop(void *stack)
+void *pop(void **stack)
 {
-        Stack *head = (Stack *)stack;
-        stack = head->next;
-
-        void *ptr = head->ptr;
-        free(head);
+        void *ptr = ((Stack *)*stack)->ptr;
+        *stack = ((Stack *)stack)->next;
+        
         return ptr;
 }

@@ -42,14 +42,16 @@ void *malloc_mem_debug(size_t size, int line, char *file, char *func)
 	data->size = size;
 	data->padding = padding;
 
-	push(alloc_stack, data);
+	push(&alloc_stack, data);
 
 	return ptr;
 }
 
 void free_mem_debug(void *ptr, int line, char *file, char *func)
 {
-	data_debug *orig = (data_debug *)get(alloc_stack, ptr);
+	data_debug *orig = (data_debug *)get(&alloc_stack, ptr);
+        if (orig == NULL)
+                internal_mem_error(__LINE__, __FILE__, __func__, "Tried to remove a element from stack which was not on stack");
 
 	data_free *data = (data_free *)malloc(sizeof(data_free));
         if (data == NULL)
@@ -62,7 +64,7 @@ void free_mem_debug(void *ptr, int line, char *file, char *func)
         data->debug.func = func;
         data->debug.ptr = ptr;
 
-        push(free_stack, data);
+        push(&free_stack, data);
 }
 
 void *calloc_mem_debug(size_t nmemb, size_t size, int line, char *file,
@@ -89,7 +91,7 @@ void *calloc_mem_debug(size_t nmemb, size_t size, int line, char *file,
 	data->size = size;
 	data->padding = padding;
 
-	push(alloc_stack, data);
+	push(&alloc_stack, data);
 	return ptr;
 }
 
@@ -116,9 +118,9 @@ void *realloc_mem_debug(void *sptr, size_t size, int line, char *file,
 	data->size = size;
 	data->padding = padding;
 
-        if (get(alloc_stack, sptr) == NULL)
+        if (get(&alloc_stack, sptr) == NULL)
                 internal_mem_error(__LINE__, __FILE__, __func__, "Tried to remove a element from stack which was not on stack");
-	push(alloc_stack, data);
+	push(&alloc_stack, data);
 	return ptr;
 }
 
@@ -147,8 +149,9 @@ void *reallocarray_mem_debug(void *sptr, size_t nmemb, size_t size, int line,
 	data->size = size;
 	data->padding = padding;
 
-        (void)get(alloc_stack, sptr);
-	push(alloc_stack, data);
+        if (get(&alloc_stack, sptr) == NULL)
+                        internal_mem_error(__LINE__, __FILE__, __func__, "Tried to remove a element from stack which was not on stack");
+	push(&alloc_stack, data);
 	return ptr;
 }
 #endif
@@ -255,7 +258,7 @@ int fprint_mem_debug(FILE *stream)
 {
         data_debug *data;
 
-        while ((data = pop(alloc_stack)) != NULL) {
+        while ((data = pop(&alloc_stack)) != NULL) {
                 switch (data->type) {
                 case TYPE_MALLOC:
                         return fprint_mem_debug_malloc(stream, (data_malloc *)data);
@@ -277,7 +280,7 @@ int fprint_mem_debug(FILE *stream)
                 }
         }
 
-        while ((data = pop(free_stack)) != NULL) {
+        while ((data = pop(&free_stack)) != NULL) {
                 switch (data->type) {
                 case TYPE_CALLOC:
                 case TYPE_REALLOC:
