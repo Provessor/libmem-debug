@@ -193,9 +193,11 @@ int fprint_mem_debug_free(FILE *stream, data_free *data)
         case TYPE_REALLOC:
                 free = free && fprint_mem_debug_realloc(stream, (data_realloc *)data->orig);
                 break;
+#if __GLIBC_MINOR__ > 28
         case TYPE_REALLOCARRAY:
                 free = free && fprint_mem_debug_reallocarray(stream, (data_reallocarray *)data->orig);
                 break;
+#endif
         }
 
         return free && fprintf(stderr, "\n");
