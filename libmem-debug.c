@@ -4,6 +4,8 @@
 #include "types.h"
 #include "hand_err.h"
 
+#define _GNU_SOURCE
+
 #define PADDING_RATIO 1
 #define PADDING_INCRE 0
 #define PADDING_FILLC (int8_t)0
