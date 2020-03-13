@@ -14,7 +14,7 @@ void internal_mem_error(const int line, const char *file, const char *func, cons
 void internal_mem_error_size(const int line, const char *file, const char *func, const unsigned long size)
 {
         char err[30];
-        snprintf(err, 30, "Failed to allocate %lu bytes\n", size);
+        sprintf(err, "Failed to allocate %lu bytes\n", size);
         internal_mem_error(line, file, func, err);
 }
 

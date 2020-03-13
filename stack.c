@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include "stack.h"
-#include "types.h" // FIXME: would like to not include
+#include "types.h" /* FIXME: would like to not include */
 #include "hand_err.h"
 
 typedef struct stack {
@@ -46,7 +46,7 @@ void *get(void **stack, void *mptr)
         Stack *prev = NULL, *pin = (Stack *)*stack;
         
         while (pin != NULL) {
-                if (pin->ptr->ptr == mptr) { // FEXME: all types.h is for
+                if (pin->ptr->ptr == mptr) { /* FEXME: all types.h is for */
                         if (prev != NULL)
                                 prev->next = pin->next;
                         else
@@ -99,7 +99,8 @@ void **get_all(void **stack)
         if (all == NULL)
                 internal_mem_error_size(__LINE__, __FILE__, __func__, sizeof(void **) * count);
 
-        for (int i = 0; i < count; i++) {
+        int i;
+        for (i = 0; i < count; i++) {
                 all[i] = pin->ptr;
                 pin = pin->next;
         }

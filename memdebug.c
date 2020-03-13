@@ -25,7 +25,8 @@ void *malloc_mem_debug(size_t size, int line, const char *file, const char *func
 	size_t padding = size * PADDING_RATIO + PADDING_INCRE;
 	void *ptr = malloc(size + padding);
 
-	for (int8_t *pin = (int8_t *)ptr + size;
+        int8_t *pin;
+	for (pin = (int8_t *)ptr + size;
 	     pin < (int8_t *)ptr + size + padding; pin++)
 		*pin = PADDING_FILLC;
 
@@ -73,7 +74,8 @@ void *calloc_mem_debug(size_t nmemb, size_t size, int line, const char *file,
 	size_t padding = nmemb * PADDING_RATIO + PADDING_INCRE;
 	void *ptr = calloc(nmemb + padding, size);
 
-	for (int8_t *pin = (int8_t *)ptr + (nmemb * size);
+        int8_t *pin;
+	for (pin = (int8_t *)ptr + (nmemb * size);
 	     pin < (int8_t *)ptr + ((nmemb + padding) * size); pin++)
 		*pin = PADDING_FILLC;
 
@@ -101,7 +103,8 @@ void *realloc_mem_debug(void *sptr, size_t size, int line, const char *file,
 	size_t padding = size * PADDING_RATIO + PADDING_INCRE;
 	void *ptr = realloc(sptr, size + padding);
 
-	for (int8_t *pin = (int8_t *)ptr + size;
+        int8_t *pin;
+	for (pin = (int8_t *)ptr + size;
 	     pin < (int8_t *)ptr + size + padding; pin++)
 		*pin = PADDING_FILLC;
 
@@ -202,7 +205,8 @@ int fprint_mem_debug(FILE *stream)
         data = (data_debug **)get_all(&alloc_stack);
 
         if (data != NULL) {
-                for (int i = num_elems(&alloc_stack) - 1; i >= 0; i--) {
+                int i;
+                for (i = num_elems(&alloc_stack) - 1; i >= 0; i--) {
                         switch (data[i]->type) {
                         case TYPE_MALLOC:
                                 return fprint_mem_debug_malloc(stream, (data_malloc *)data[i]);
@@ -224,7 +228,8 @@ int fprint_mem_debug(FILE *stream)
         
         data = (data_debug **)get_all(&free_stack);
         if (data != NULL) {
-                for (int i = num_elems(&free_stack) - 1; i >= 0; i--) {
+                int i;
+                for (i = num_elems(&free_stack) - 1; i >= 0; i--) {
                         switch (data[i]->type) {
                         case TYPE_CALLOC:
                         case TYPE_REALLOC:

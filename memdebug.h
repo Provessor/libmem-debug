@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 void *malloc_mem_debug(size_t size, int line, const char *file, const char *func);
 void free_mem_debug(void *ptr, int line, const char *file, const char *func);
