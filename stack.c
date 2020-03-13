@@ -10,16 +10,35 @@ typedef struct stack {
 	struct stack *next;
 } Stack;
 
-void push(void **stack, void *ptr)
+void prepend(void **stack, void *ptr)
 {
         Stack *new = (Stack *)malloc(sizeof(Stack));
         if (new == NULL)
                 internal_mem_error_size(__LINE__, __FILE__, __func__, sizeof(Stack));
+
+        new->ptr = ptr;
+        new->next = NULL;
+        *stack = new;
+
+        if (*stack != NULL)
+                new->next = ((Stack *)*stack)->next;
+
+        *stack = new;
+}
+
+void append(void **stack, void *ptr)
+{
+        Stack *pin, *new = (Stack *)malloc(sizeof(Stack));
+        if (new == NULL)
+                internal_mem_error_size(__LINE__, __FILE__, __func__, sizeof(Stack));
         
         new->ptr = ptr;
+        new->next = NULL;
 
-        new->next = (Stack *)stack;
-        *stack = new;
+        for (pin = (Stack *)*stack; pin->next != NULL; pin = pin->next)
+                ;
+
+        pin->next = new;
 }
 
 void *get(void **stack, void *mptr)
@@ -34,7 +53,7 @@ void *get(void **stack, void *mptr)
                                 *stack = pin->next;
 
                         void *ptr = pin->ptr;
-                        //free(pin);
+                        free(pin);
                         return ptr;
                 }
                 
@@ -48,7 +67,42 @@ void *get(void **stack, void *mptr)
 void *pop(void **stack)
 {
         void *ptr = ((Stack *)*stack)->ptr;
-        *stack = ((Stack *)stack)->next;
+        *stack = ((Stack *)*stack)->next;
         
         return ptr;
+}
+
+int num_elems(void **stack)
+{
+        Stack *pin;
+        int count = 0;
+        if (*stack != NULL) {
+                count = 1;
+
+                for (pin = (Stack *)*stack; pin->next != NULL; pin = pin->next)
+                        count++;
+        }
+
+        return count;
+}
+
+void **get_all(void **stack)
+{
+        int count = num_elems(stack);
+        void **all;
+        Stack *pin = (Stack *)*stack;
+
+        if (count == 0)
+                return NULL;
+
+        all = (void **)malloc(sizeof(void **) * count);
+        if (all == NULL)
+                internal_mem_error_size(__LINE__, __FILE__, __func__, sizeof(void **) * count);
+
+        for (int i = 0; i < count; i++) {
+                all[i] = pin->ptr;
+                pin = pin->next;
+        }
+
+        return all;
 }

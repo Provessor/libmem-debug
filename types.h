@@ -9,14 +9,13 @@ typedef enum {
 	TYPE_FREE,
 	TYPE_CALLOC,
 	TYPE_REALLOC,
-	TYPE_REALLOCARRAY
 } data_type;
 
 typedef struct {
 	data_type type;
 	int line;
-	char *file;
-	char *func;
+	const char *file;
+	const char *func;
         void *ptr;
 } data_debug;
 
@@ -43,12 +42,5 @@ typedef struct {
 	size_t size;
         size_t padding;
 } data_realloc;
-
-typedef struct {
-	data_debug debug;
-	size_t nmemb;
-	size_t size;
-        size_t padding;
-} data_reallocarray;
 
 #endif
