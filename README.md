@@ -30,10 +30,10 @@ For a system installation and
 ```
 For local.
 
-The provided functions `print_mem_debug()`{:.c}, `fprint_mem_debug(FILE
-*stream)`{:.c} and `log_mem_debug(const char *fn, int8_t append)`{:.c} will
-print the current state of memory to `stderr`{:.c}, `stream`{:.c} or file with
-name given by `fn`{:.c} respectively.
+The provided functions `print_mem_debug()`, `fprint_mem_debug(FILE
+*stream)` and `log_mem_debug(const char *fn, int8_t append)` will
+print the current state of memory to `stderr`, `stream` or file with
+name given by `fn` respectively.
 
 More features are planned in the near future.
 
