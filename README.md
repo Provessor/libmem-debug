@@ -35,7 +35,23 @@ The provided functions `print_mem_debug()`, `fprint_mem_debug(FILE
 print the current state of memory to `stderr`, `stream` or file with
 name given by `fn` respectively.
 
-More features are planned in the near future.
+## Enable/Disable
+The macro `LIBMEM_DEBUG_DISABLE` is used to disable all functionality
+of libmem-debug without the need to remove it from all includes. It
+removes any logging for memory management and makes the provided
+functions do nothing (this includes `print_mem_debug()`,
+`fprint_mem_debug(FILE *)` and `log_mem_debug(const char *, int8_t)`).
+
+There also exists a `LIBMEM_DEBUG_ENABLE` macro which can be used to
+force-enable functionality even when `LIBMEM_DEBUG_DISABLE` is
+defined.
+
+All functionality is enabled by default.
+
+### Tips
+The easiest method of controlling functionality is to just define
+`LIBMEM_DEBUG_DISABLE` in production builds (append
+`-DLIBMEM_DEBUG_DISABLE` to your compiler flags).
 
 ## Compilation
 To include the library when compiling append `-lmem-debug` to the
