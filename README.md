@@ -61,3 +61,4 @@ look something like:
 ``` c
 c89 -o main main.c -L. -lmem-debug
 ```
+An example of this can be found in the Makefile under tests/
