@@ -17,11 +17,7 @@ void prepend(void **stack, void *ptr)
                 internal_mem_error_size(__LINE__, __FILE__, __func__, sizeof(Stack));
 
         new->ptr = ptr;
-        new->next = NULL;
-        *stack = new;
-
-        if (*stack != NULL)
-                new->next = ((Stack *)*stack)->next;
+        new->next = *stack;
 
         *stack = new;
 }
