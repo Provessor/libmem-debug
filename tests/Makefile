@@ -1,6 +1,6 @@
 CC = c89
 
-CFLAGS = -Wall -DLIBMEM_DEBUG_DISABLE
+CFLAGS = -Wall #-DLIBMEM_DEBUG_DISABLE
 LDFLAGS = -L.. -lmem-debug
 
 simple-print_SRC = simple-print.c

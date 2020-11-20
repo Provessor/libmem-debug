@@ -1,2 +1,5 @@
 /.ccls-cache/
 *.o
+/libmem-debug.a
+/libmem-debug.so
+/tests/simple-print

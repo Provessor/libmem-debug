@@ -16,6 +16,24 @@ int fprint_mem_debug_realloc(FILE *stream, data_realloc *data);
 void *alloc_stack;
 void *free_stack;
 
+typedef struct {
+	size_t requested;
+	size_t allocated;
+} MemoryAlloc;
+
+MemoryAlloc single_max = {
+	.requested = 0,
+	.allocated = 0,
+};
+MemoryAlloc total_max = {
+	.requested = 0,
+	.allocated = 0,
+};
+MemoryAlloc single_curr = {
+	.requested = 0,
+	.allocated = 0,
+};
+
 void *malloc_mem_debug(size_t size, int line, const char *file, const char *func)
 {
 	data_malloc *data = (data_malloc *)malloc(sizeof(data_malloc));
@@ -41,6 +59,16 @@ void *malloc_mem_debug(size_t size, int line, const char *file, const char *func
 
 	prepend(&alloc_stack, data);
 
+	single_curr.requested += size;
+	single_curr.allocated += size + padding;
+	total_max.requested += size;
+	total_max.allocated += size + padding;
+
+	if (single_curr.requested > single_max.requested) {
+		single_max.requested = single_curr.requested;
+		single_max.allocated = single_curr.allocated;
+	}
+
 	return ptr;
 }
 
@@ -60,6 +88,24 @@ void free_mem_debug(void *ptr, int line, const char *file, const char *func)
         data->debug.file = file;
         data->debug.func = func;
         data->debug.ptr = ptr;
+
+        switch (data->orig->type) {
+        case TYPE_MALLOC:
+	        single_curr.requested -= ((data_malloc *)data->orig)->size;
+	        single_curr.allocated -= ((data_malloc *)data->orig)->size + ((data_malloc *)data->orig)->padding;
+	        break;
+        case TYPE_FREE:
+	        internal_mem_error(__LINE__, __FILE__, __func__, "Free after free!");
+	        break;
+        case TYPE_CALLOC:
+	        single_curr.requested -= ((data_calloc *)data->orig)->nmemb * ((data_calloc *)data->orig)->size;
+	        single_curr.allocated -= (((data_calloc *)data->orig)->nmemb + ((data_calloc *)data->orig)->padding) * ((data_calloc *)data->orig)->size;
+	        break;
+        case TYPE_REALLOC:
+	        single_curr.requested -= ((data_realloc *)data->orig)->size;
+	        single_curr.allocated -= ((data_realloc *)data->orig)->size + ((data_realloc *)data->orig)->padding;
+	        break;
+        }
 
         prepend(&free_stack, data);
 }
@@ -90,6 +136,17 @@ void *calloc_mem_debug(size_t nmemb, size_t size, int line, const char *file,
 	data->padding = padding;
 
 	prepend(&alloc_stack, data);
+	
+	single_curr.requested += nmemb * size;
+	single_curr.allocated += (nmemb + padding) * size;
+	total_max.requested += nmemb * size;
+	total_max.allocated += (nmemb + padding) * size;
+
+	if (single_curr.requested > single_max.requested) {
+		single_max.requested = single_curr.requested;
+		single_max.allocated = single_curr.allocated;
+	}
+
 	return ptr;
 }
 
@@ -99,6 +156,9 @@ void *realloc_mem_debug(void *sptr, size_t size, int line, const char *file,
 	data_realloc *data = (data_realloc *)malloc(sizeof(data_realloc));
         if (data == NULL)
                 internal_mem_error_size(__LINE__, __FILE__, __func__, sizeof(data_realloc));
+
+        size_t old_size = data->size;
+        size_t old_padding = data->padding;
 
 	size_t padding = size * PADDING_RATIO + PADDING_INCRE;
 	void *ptr = realloc(sptr, size + padding);
@@ -120,6 +180,26 @@ void *realloc_mem_debug(void *sptr, size_t size, int line, const char *file,
         if (get(&alloc_stack, sptr) == NULL)
                 internal_mem_error(__LINE__, __FILE__, __func__, "Tried to remove a element from stack which was not on stack");
 	prepend(&alloc_stack, data);
+
+	if (sptr == ptr) {
+		single_curr.requested += size - old_size;
+		single_curr.allocated += size + padding - old_size - old_padding;
+		if (size - old_size >= 0) {
+			total_max.requested += size - old_size;
+			total_max.allocated += size + padding - old_size - old_padding;
+		}
+	} else {
+		single_curr.requested += size - old_size;
+		single_curr.allocated += size + padding - old_size - old_padding;
+		total_max.requested += size;
+		total_max.allocated += size + padding;
+	}
+
+	if (single_curr.requested > single_max.requested) {
+		single_max.requested = single_curr.requested;
+		single_max.allocated = single_curr.allocated;
+	}
+
 	return ptr;
 }
 
@@ -201,6 +281,23 @@ int fprint_mem_debug_realloc(FILE *stream, data_realloc *data)
 int fprint_mem_debug(FILE *stream)
 {
         data_debug **data;
+
+        fprintf(stream,
+                "Total Memory Allocated:"
+                "\n\tREQUESTED: %zu bytes"
+                "\n\tALLOCATED: %zu bytes"
+                "\n"
+                "Maximum Allocated Memory:"
+                "\n\tREQUESTED: %zu bytes"
+                "\n\tALLOCATED: %zu bytes"
+                "\n"
+                "Current Allocated Memory:"
+                "\n\tREQUESTED: %zu bytes"
+                "\n\tALLOCATED: %zu bytes"
+                "\n\n",
+                total_max.requested, total_max.allocated,
+                single_max.requested, single_max.allocated,
+                single_curr.requested, single_curr.allocated);
 
         data = (data_debug **)get_all(&alloc_stack);
 
